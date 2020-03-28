@@ -1,0 +1,20 @@
+<android.support.v7.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/toolbar"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/messagePageTitleBG"
+    android:minHeight="?attr/actionBarSize">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="4dp"
+        android:maxLines="1"
+        android:text="广州市养犬管理信息系统"
+        android:textColor="@color/messagePageTitle"
+        android:textSize="10pt"
+        android:textStyle="bold">
+
+    </TextView>
+</android.support.v7.widget.Toolbar>
