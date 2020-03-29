@@ -14,12 +14,14 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.blankj.utilcode.util.ActivityUtils;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -28,6 +30,7 @@ import butterknife.ButterKnife;
 import cn.cbsd.dogtag.Data.DogViolationBean;
 import cn.cbsd.dogtag.UI.ViolationUnitAdapter;
 import cn.cbsd.dogtag.greendao.DaoSession;
+import io.reactivex.Observable;
 
 public class ViolationSearchActivity extends BaseNFCActivity {
 
@@ -39,7 +42,7 @@ public class ViolationSearchActivity extends BaseNFCActivity {
 
     List<DogViolationBean> dogViolationBeans = new ArrayList<>();
 
-    Set<DogViolationBean> all = new HashSet<>();
+    Set<DogViolationBean> all = new LinkedHashSet<>();
 
     ViolationUnitAdapter violationUnitAdapter;
 
@@ -52,7 +55,6 @@ public class ViolationSearchActivity extends BaseNFCActivity {
         setContentView(R.layout.activity_search);
         ButterKnife.bind(this);
         initToolBar();
-        DataPrepare();
         recycleViewInit();
     }
 
@@ -60,12 +62,16 @@ public class ViolationSearchActivity extends BaseNFCActivity {
         Intent intent = getIntent();
         if (Intent.ACTION_VIEW.equals(intent.getAction())) {
             Bundle bundle = intent.getExtras();
-            if (bundle.get("violationID") != null) {
+            if (bundle != null) {
                 try {
+                    dogViolationBeans.clear();
+                    all.clear();
                     DogViolationBean bean = mdaosession.queryRaw(DogViolationBean.class, "where _id = " + bundle.get("violationID")).get(0);
                     dogViolationBeans.add(bean);
-                }catch (Exception e){
-                    Log.e(TAG,e.toString());
+                    violationUnitAdapter.notifyDataSetChanged();
+
+                } catch (Exception e) {
+                    Log.e(TAG, e.toString());
                 }
 
             }
@@ -78,14 +84,30 @@ public class ViolationSearchActivity extends BaseNFCActivity {
         violationUnitAdapter.setOnItemClickListener(new ViolationUnitAdapter.OnItemClickListener() {
             @Override
             public void onClick(int position) {
+                if (dogViolationBeans.get(position).getDealStatus().equals("已处理")) {
+                    Bundle bundle = new Bundle();
+                    bundle.putString("violationMessageType", "view");
+                    bundle.putString("violationID", String.valueOf(dogViolationBeans.get(position).getId()));
+                    ActivityUtils.startActivity(bundle, getPackageName(), getPackageName() + ".FillViolationsActivity");
+                } else {
+                    Bundle bundle = new Bundle();
+                    bundle.putString("violationMessageType", "update");
+                    bundle.putString("violationID", String.valueOf(dogViolationBeans.get(position).getId()));
+                    ActivityUtils.startActivity(bundle, getPackageName(), getPackageName() + ".FillViolationsActivity");
+                }
 
             }
         });
         violationUnitAdapter.notifyDataSetChanged();
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+    }
 
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        DataPrepare();
     }
 
     private void initToolBar() {
@@ -121,8 +143,6 @@ public class ViolationSearchActivity extends BaseNFCActivity {
 
             @Override
             public boolean onQueryTextChange(String newText) {
-
-
                 if (TextUtils.isEmpty(newText) || newText.startsWith("*")) {
                     all.clear();
                     dogViolationBeans.clear();
@@ -135,8 +155,8 @@ public class ViolationSearchActivity extends BaseNFCActivity {
                 } else {
                     all.clear();
                     dogViolationBeans.clear();
-                    List<DogViolationBean> listByPersonName = mdaosession.queryRaw(DogViolationBean.class, "where PERSON_NAME like '%" + newText + "%'");
-                    List<DogViolationBean> listByDogName = mdaosession.queryRaw(DogViolationBean.class, "where Dog_Name like '%" + newText + "%'");
+                    List<DogViolationBean> listByPersonName = mdaosession.queryRaw(DogViolationBean.class, "where PERSON_NAME like '%" + newText + "%' Order by _id desc");
+                    List<DogViolationBean> listByDogName = mdaosession.queryRaw(DogViolationBean.class, "where Dog_Name like '%" + newText + "%' Order by _id desc");
                     Log.e("listByPersonName", String.valueOf(listByPersonName.size()));
                     Log.e("listByDogName", String.valueOf(listByDogName.size()));
                     all.addAll(listByPersonName);

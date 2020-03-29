@@ -1,12 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
 
     <LinearLayout
-        android:layout_marginTop="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.bigkoo.convenientbanner.ConvenientBanner
+            android:id="@+id/localConvenientBanner"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            app:autoTurningTime="3000"
+            app:canLoop="true"/>
+
+
+    </LinearLayout>
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
         android:orientation="horizontal">
 
 
@@ -25,14 +42,26 @@
             android:src="@drawable/ic_qrcode"></ImageView>
 
         <ImageView
-            android:id="@+id/iv_handWrite"
+            android:id="@+id/iv_dogMessageSearch"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:src="@drawable/ic_search">
-        </ImageView>
+            android:src="@drawable/ic_search"></ImageView>
 
     </LinearLayout>
 
+    <LinearLayout
+        android:layout_marginTop="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center">
 
+        <ImageView
+            android:id="@+id/iv_violationSearch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_error_android"></ImageView>
+
+
+    </LinearLayout>
 </LinearLayout>

@@ -7,11 +7,16 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.view.View;
 import android.widget.ImageView;
 
+import com.bigkoo.convenientbanner.ConvenientBanner;
+import com.bigkoo.convenientbanner.holder.CBViewHolderCreator;
+import com.bigkoo.convenientbanner.holder.Holder;
 import com.blankj.utilcode.util.ActivityUtils;
 import com.blankj.utilcode.util.SPUtils;
 import com.blankj.utilcode.util.ToastUtils;
+import com.squareup.haha.perflib.Main;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +28,7 @@ import cn.cbsd.dogtag.Data.DogMessageBean;
 import cn.cbsd.dogtag.Helper.PermissionHelper;
 import cn.cbsd.dogtag.Tools.ActivityCollector;
 import cn.cbsd.dogtag.Tools.FileUtils;
+import cn.cbsd.dogtag.UI.LocalImageHolderView;
 import cn.cbsd.dogtag.greendao.DaoSession;
 
 import static cn.cbsd.dogtag.Helper.PermissionHelper.PERMISSION_REQUESTCODE;
@@ -39,15 +45,17 @@ public class MainActivity extends BaseToolBarActivity {
     String[] permissions = new String[]{
             Manifest.permission.CAMERA
     };
+    @BindView(R.id.localConvenientBanner)
+    ConvenientBanner convenientBanner;
 
-    @BindView(R.id.iv_nfc)
-    ImageView iv_nfc;
-
-    @BindView(R.id.iv_QRCode)
-    ImageView iv_qrcode;
-
-    @BindView(R.id.iv_handWrite)
-    ImageView iv_handwrite;
+//    @BindView(R.id.iv_nfc)
+//    ImageView iv_nfc;
+//
+//    @BindView(R.id.iv_QRCode)
+//    ImageView iv_qrcode;
+//
+//    @BindView(R.id.iv_dogMessageSearch)
+//    ImageView iv_dogMessageSearch;
 
     @OnClick(R.id.iv_QRCode)
     void qrcode() {
@@ -66,11 +74,15 @@ public class MainActivity extends BaseToolBarActivity {
 
     }
 
-    @OnClick(R.id.iv_handWrite)
-    void handWrite() {
+    @OnClick(R.id.iv_dogMessageSearch)
+    void dogMessageSearch() {
         ActivityUtils.startActivity(getPackageName(), getPackageName() + ".MessageSearchActivity");
     }
 
+    @OnClick(R.id.iv_violationSearch)
+    void violationSearch() {
+        ActivityUtils.startActivity(getPackageName(), getPackageName() + ".ViolationSearchActivity");
+    }
 
     @OnClick(R.id.iv_nfc)
     void nfc() {
@@ -82,19 +94,20 @@ public class MainActivity extends BaseToolBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+        Bitmap labuladuo1 = BitmapFactory.decodeResource(getResources(), R.drawable.labuladuo1);
+        Bitmap labuladuo2 = BitmapFactory.decodeResource(getResources(), R.drawable.labuladuo2);
+        Bitmap labuladuo3 = BitmapFactory.decodeResource(getResources(), R.drawable.labuladuo3);
+
+        String string_labuladuo1 = FileUtils.bitmapToBase64(labuladuo1);
+        String string_labuladuo2 = FileUtils.bitmapToBase64(labuladuo2);
+        String string_labuladuo3 = FileUtils.bitmapToBase64(labuladuo3);
+
+        List<String> bitmaps = new ArrayList<>();
+        bitmaps.add(string_labuladuo1);
+        bitmaps.add(string_labuladuo2);
+        bitmaps.add(string_labuladuo3);
         if (config.getBoolean("firstStart", true)) {
-            Bitmap labuladuo1 = BitmapFactory.decodeResource(getResources(), R.drawable.labuladuo1);
-            Bitmap labuladuo2 = BitmapFactory.decodeResource(getResources(), R.drawable.labuladuo2);
-            Bitmap labuladuo3 = BitmapFactory.decodeResource(getResources(), R.drawable.labuladuo3);
 
-            String string_labuladuo1 = FileUtils.bitmapToBase64(labuladuo1);
-            String string_labuladuo2 = FileUtils.bitmapToBase64(labuladuo2);
-            String string_labuladuo3 = FileUtils.bitmapToBase64(labuladuo3);
-
-            List<String> bitmaps = new ArrayList<>();
-            bitmaps.add(string_labuladuo1);
-            bitmaps.add(string_labuladuo2);
-            bitmaps.add(string_labuladuo3);
 
             DogMessageBean dogMessageBean = new DogMessageBean();
             dogMessageBean.setPersonName("王振文");
@@ -111,12 +124,35 @@ public class MainActivity extends BaseToolBarActivity {
             config.put("firstStart", false);
 
         }
+
+        convenientBanner.setPages(new CBViewHolderCreator() {
+            @Override
+            public Holder createHolder(View itemView) {
+                return new LocalImageHolderView(MainActivity.this,itemView);
+            }
+
+            @Override
+            public int getLayoutId() {
+                return R.layout.item_image;
+            }
+        }, bitmaps)
+                //设置两个点图片作为翻页指示器，不设置则没有指示器，可以根据自己需求自行配合自己的指示器，不需要圆点指示器可以不设
+                .setPageIndicator(new int[]{R.mipmap.ic_page_indicator, R.mipmap.ic_page_indicator_focused})
+                //设置指示器的位置（左、中、右）
+                .setPageIndicatorAlign(ConvenientBanner.PageIndicatorAlign.ALIGN_PARENT_RIGHT)
+                //设置指示器是否可见
+                .setPointViewVisible(true)
+
+
+        ;
+
     }
 
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
         if (resultCode == RESULT_OK) {
             try {
                 Bundle bundle = data.getExtras();

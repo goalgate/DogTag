@@ -137,22 +137,27 @@ public class FillViolationsActivity extends BaseToolBarActivity {
                 dogViolationBean.setDate(formatter.format(new Date(System.currentTimeMillis())));
                 mdaosession.insert(dogViolationBean);
                 Bundle bundle = new Bundle();
-                bundle.putString("violationID",String.valueOf(dogViolationBean.getId()));
-                ActivityUtils.startActivity(bundle,getPackageName(), getPackageName() + ".ViolationSearchActivity");
+                bundle.putString("violationID", String.valueOf(dogViolationBean.getId()));
+                ActivityUtils.startActivity(bundle, getPackageName(), getPackageName() + ".ViolationSearchActivity");
+                this.finish();
             }
         } else if (mOperation == Operation.update) {
             if (TextUtils.isEmpty(et_result.getText().toString())) {
                 ToastUtils.showLong("处理结果尚未填写,该条记录无法上传");
             } else {
-                dogViolationBean = new DogViolationBean();
-                dogViolationBean.setPersonId(dogMessageBean.getPersonId());
-                dogViolationBean.setPersonName(dogMessageBean.getPersonName());
-                dogViolationBean.setDogName(dogMessageBean.getDogName());
-                dogViolationBean.setDogTag(dogMessageBean.getDogTagNum());
+                dogViolationBean.setPersonId(dogViolationBean.getPersonId());
+                dogViolationBean.setPersonName(dogViolationBean.getPersonName());
+                dogViolationBean.setDogName(dogViolationBean.getDogName());
+                dogViolationBean.setDogTag(dogViolationBean.getDogTag());
                 dogViolationBean.setViolation_message(et_violation_message.getText().toString());
                 dogViolationBean.setDealStatus("已处理");
                 dogViolationBean.setDealContent(et_result.getText().toString());
                 mdaosession.update(dogViolationBean);
+                Bundle bundle = new Bundle();
+                bundle.putString("violationID", String.valueOf(dogViolationBean.getId()));
+                ActivityUtils.startActivity(bundle, getPackageName(), getPackageName() + ".ViolationSearchActivity");
+                this.finish();
+
             }
         }
     }
@@ -256,12 +261,19 @@ public class FillViolationsActivity extends BaseToolBarActivity {
                     et_dogName.setText(dogViolationBean.getDogName());
                     et_violation_message.setText(dogViolationBean.getViolation_message());
                     violationBitmap = dogViolationBean.getBitmaps();
-                    Glide.with(FillViolationsActivity.this)
-                            .load(Base64.decode(violationBitmap.get(0), Base64.DEFAULT))
-                            .into(iv_violation);
+                    if (violationBitmap.size() <= 0) {
+                        btn_camera_left.setVisibility(View.GONE);
+                        btn_camera_right.setVisibility(View.GONE);
+                    } else {
+                        pic_index++;
+                        Glide.with(FillViolationsActivity.this)
+                                .load(Base64.decode(violationBitmap.get(pic_index), Base64.DEFAULT))
+                                .into(iv_violation);
+
+                    }
                     et_violation_message.setEnabled(false);
-                    btn_camera_add.setEnabled(false);
-                    btn_camera_delete.setEnabled(false);
+                    btn_camera_add.setVisibility(View.GONE);
+                    btn_camera_delete.setVisibility(View.GONE);
                 } else if (bundle.get("violationMessageType").equals("view")) {
                     mOperation = Operation.view;
                     dogViolationBean = mdaosession.queryRaw(DogViolationBean.class, "where _id = '" + bundle.get("violationID") + "'").get(0);
@@ -269,13 +281,22 @@ public class FillViolationsActivity extends BaseToolBarActivity {
                     et_personId.setText(dogViolationBean.getPersonId());
                     et_dogName.setText(dogViolationBean.getDogName());
                     et_violation_message.setText(dogViolationBean.getViolation_message());
-                    Glide.with(FillViolationsActivity.this)
-                            .load(Base64.decode(violationBitmap.get(0), Base64.DEFAULT))
-                            .into(iv_violation);
+                    et_result.setText(dogViolationBean.getDealContent());
+                    violationBitmap = dogViolationBean.getBitmaps();
+
+                    if (violationBitmap.size() <= 0) {
+                        btn_camera_left.setVisibility(View.GONE);
+                        btn_camera_right.setVisibility(View.GONE);
+                    } else {
+                        pic_index++;
+                        Glide.with(FillViolationsActivity.this)
+                                .load(Base64.decode(violationBitmap.get(pic_index), Base64.DEFAULT))
+                                .into(iv_violation);
+                    }
                     et_violation_message.setEnabled(false);
                     et_result.setEnabled(false);
-                    btn_camera_add.setEnabled(false);
-                    btn_camera_delete.setEnabled(false);
+                    btn_camera_add.setVisibility(View.GONE);
+                    btn_camera_delete.setVisibility(View.GONE);
                     tv_sumbit.setVisibility(View.GONE);
                 }
             }
@@ -319,13 +340,25 @@ public class FillViolationsActivity extends BaseToolBarActivity {
     }
 
 
-    private void ScrollViewDown(){
+    private void ScrollViewDown() {
         new Handler().post(new Runnable() {
             @Override
             public void run() {
                 mScrollView.fullScroll(ScrollView.FOCUS_DOWN);
             }
         });
+
+    }
+
+    @Override
+    public void onBackPressed() {
+        this.finish();
+        if(mOperation !=Operation.add){
+            ActivityUtils.startActivity(getPackageName(), getPackageName() + ".ViolationSearchActivity");
+        }else{
+            ActivityUtils.startActivity(getPackageName(), getPackageName() + ".MainActivity");
+
+        }
 
     }
 }

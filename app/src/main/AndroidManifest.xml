@@ -34,21 +34,27 @@
 
         <activity android:name=".MessagePageActivity"
             android:parentActivityName=".MainActivity"
+            android:screenOrientation = "portrait"
             android:launchMode="singleInstance"></activity>
         <activity android:name=".NFCWaitingActivity"
+            android:screenOrientation = "portrait"
             android:parentActivityName=".MainActivity"
             android:launchMode="singleInstance"></activity>
         <activity android:name=".MessageSearchActivity"
+            android:screenOrientation = "portrait"
             android:parentActivityName=".MainActivity"
             android:launchMode="singleInstance"></activity>
         <activity android:name=".CaptureActivity"
+            android:screenOrientation = "portrait"
             android:parentActivityName=".MainActivity"
             android:launchMode="singleInstance"></activity>
         <activity android:name=".FillViolationsActivity"
+            android:screenOrientation = "portrait"
             android:parentActivityName=".MainActivity"
             android:launchMode="singleInstance"></activity>
         <activity android:name=".ViolationSearchActivity"
             android:parentActivityName=".MainActivity"
+            android:screenOrientation = "portrait"
             android:launchMode="singleInstance"></activity>
     </application>
     <uses-permission android:name="android.permission.NFC" />

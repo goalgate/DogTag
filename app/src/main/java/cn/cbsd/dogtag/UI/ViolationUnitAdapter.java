@@ -45,8 +45,10 @@ public class ViolationUnitAdapter extends RecyclerView.Adapter<ViolationUnitAdap
             holder.tv_violation_message.setText(list.get(position).getViolation_message());
         }
         holder.tv_dealStatus.setText(list.get(position).getDealStatus());
-        if (list.get(position).getDealStatus().equals("待处理")){
+        if (list.get(position).getDealStatus().startsWith("待")){
             holder.tv_dealStatus.setTextColor(Color.RED);
+        }else {
+            holder.tv_dealStatus.setTextColor(Color.GREEN);
         }
         holder.tv_datetime.setText(list.get(position).getDate());
         holder.itemView.setOnClickListener(new View.OnClickListener() {
